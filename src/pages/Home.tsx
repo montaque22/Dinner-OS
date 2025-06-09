@@ -58,7 +58,7 @@ function Home() {
                         }}
                         className="text-blue-600 hover:underline flex items-center gap-1"
                     >{/*@ts-ignore*/}
-                        {name ? <FiEdit2 size={20} /> : 'Enter Name'}
+                        {name ? <FiEdit2 size={20} /> : 'Settings'}
                     </button>
                 </div>
             </div>

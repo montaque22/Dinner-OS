@@ -39,10 +39,9 @@ function Discover() {
             body: JSON.stringify(user),
         })
             .then((response) => response.json())
-            .then((response: { args: { response: string } }[]) => {
-                const data = response[0]
-                const system = generate(data.args.response, "Agent", "agent")
-                setMessages((prev) => [...prev, system])
+            .then((responses: { agent: string} ) => {
+                const systemResponses = [generate(responses.agent, "Agent", "agent")]
+                setMessages((prev) => [...prev, ...systemResponses])
             })
             .catch((error: Error) => console.log(error))
             .finally(() => setWaiting(false))
@@ -54,9 +53,9 @@ function Discover() {
             body: JSON.stringify(messages),
         })
             .then((res) => res.json())
-            .then((data: { name: string, success: boolean, response: string }) => {
+            .then((data: { name?: string, success: boolean, response: string }) => {
                 setSavedResponse(data.response)
-                setSavedName(data.name)
+                setSavedName(data.name || "")
                 setDidSucceed(data.success)
                 setShowModal(true)
             })

@@ -1,9 +1,86 @@
-# Getting Started with Create React App
+# Dinner OS
+> Created by Technithusiast
+
+**This is a WAPP (Weekend App).**
+
+This was created in under 48 hours to address a personal pain-point and satisfy my own curiosity.
+As a result, this app is untested and will contain bugs that may or may not get fixed. You are free to fork this project and evolve it however you like.
+You are also free to submit pull requests if you would like to contribute.
+
+### What is this Dinner OS
+This is a simple react application that does two things.
+1. Has a "Discover" Page where you can chat with an AI server (This is a separate service). It is able to recommend recipes and other dinner suggestions based on your preferences
+2. Has a "Favorites" page where you can revisit any recipe that you saved.
+
+This app can be configured to point to any AI server endpoint as long as they adhere to the following interface
+
+#### POST /dinnerchat
+This endpoint is used power the chat feature of the app
+**Input**
+```ts
+type DinnerChatBody = { 
+    text: string, // your message to the AI
+    user: { 
+        id: string, // persistent unique id. Think of it like a sessionId 
+        name: string // name of the person sending the message 
+    } 
+}
+```
+
+**Output**
+```ts
+// agent represents the AI's response
+type DinnerChatResponse = { agent: string}
+```
+
+#### POST /saveddinner
+Fires when the `Save Recipe` button is pressed
+**Input**
+```ts
+// This is the entire chat history. 
+type SaveRecipeBody = DinnerChatBody[]
+```
+
+**Output**
+```ts
+type SavedRecipeResponse = { 
+    name?: string, // Name of the document that was saved (ex: chicken and rice.md) 
+    success: boolean, // whether or not the recipe was able to be created
+    response: string  // friendly response from the AI about the request
+}
+```
+
+#### GET /list_recipes
+Returns an array of file names representing the stored recipes
+**Input**
+None
+
+**Output**
+```ts
+type ListRecipesResponse = {
+    files: string[], // file names of the recipes
+    message?: string, // will contain a value if there is an error
+    errorCode: number
+}
+```
+
+#### GET /load_recipe
+Returns an array of file names representing the stored recipes
+**Input**
+This takes a query param property of `name` which holds the name of the recipe you want to load
+Example:
+`http://localhost:1880/load_recipe?name=yum%20yum%20chicken.md`
+
+**Output**
+```ts
+// data is a markdown string of the recipe
+type LoadRecipeResponse = {data: string}
+```
+
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
 In the project directory, you can run:
 
 ### `npm start`

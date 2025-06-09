@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
+import MarkdownPreview from '@uiw/react-markdown-preview';
 import { FiArrowLeft, FiAlertCircle } from 'react-icons/fi'
 import {getSavedURLFromLocalStorage} from "../utils";
 
@@ -17,9 +17,9 @@ function RecipePage() {
 
         setLoading(true)
         fetch(`${url}/load_recipe?name=${encodeURIComponent(name)}`)
-            .then(res => res.text())
-            .then(data => {
-                setContent(data)
+            .then(res => res.json())
+            .then((response: {data: string}) => {
+                setContent(response.data)
                 setError('')
             })
             .catch(err => setError(err.toString()))
@@ -60,7 +60,7 @@ function RecipePage() {
 
             {!loading && !error && (
                 <div className="prose prose-purple max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-6 mt-4">
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <MarkdownPreview source={content}/>
                 </div>
             )}
         </div>
