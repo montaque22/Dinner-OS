@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { DEFAULT_DINNER_AI_URL } from '../config'
 import {getSavedURLFromLocalStorage, setSavedURLToLocalStorage} from "../utils";
-
+import logo from "../logo_square_small.png"
 function Home() {
     const navigate = useNavigate()
 
@@ -42,7 +42,7 @@ function Home() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-light-bg flex flex-col">
             {/* Header */}
             <div className="bg-white shadow p-4 flex items-center justify-between">
                 <div className="w-1/3"></div>
@@ -65,6 +65,7 @@ function Home() {
 
             {/* Main Content */}
             <div className="flex-grow flex flex-col items-center justify-center">
+                <img src={logo} alt=""/>
                 <div className="text-center mb-12">
                     <h1 className="text-5xl font-extrabold text-gray-800 tracking-tight">Dinner OS</h1>
                     <p className="text-gray-500 mt-2 text-lg">Your personal AI meal planner</p>
