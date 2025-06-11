@@ -1,6 +1,6 @@
 {
   "name": "dinner_os",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^2.1.1",

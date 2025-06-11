@@ -33,7 +33,8 @@ export function MessageChat({ chat, onSubmit, isTyping }: MessageChatProps) {
     }, [chat, isTyping]);
 
     return (
-        <div className="flex flex-col h-full flex-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+        <div className="flex flex-col h-full">
+            {/* Scrollable Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
                 {chat.map((msg, index) => (
                     <div
@@ -41,11 +42,10 @@ export function MessageChat({ chat, onSubmit, isTyping }: MessageChatProps) {
                         className={`flex ${msg.user.id !== 'agent' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div className={`rounded-lg px-4 py-2 max-w-4xl text-sm shadow-sm ${msg.user.id !== 'agent' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}`}>
-              <span className={`block font-medium mb-1 text-xs  ${msg.user.id !== 'agent'? 'text-gray-300' : 'text-gray-500'}`}>
-                {msg.user.name}
-              </span>
-                            <MarkdownPreview source={msg.text} style={{background:"transparent", color: msg.user.id !== 'agent'? "white" : "inherit"}}/>
-                            {/*{msg.text}*/}
+                            <span className={`block font-medium mb-1 text-xs ${msg.user.id !== 'agent' ? 'text-gray-300' : 'text-gray-500'}`}>
+                                {msg.user.name}
+                            </span>
+                            <MarkdownPreview source={msg.text} style={{ background: "transparent", color: msg.user.id !== 'agent' ? "white" : "inherit" }} />
                         </div>
                     </div>
                 ))}
@@ -59,7 +59,12 @@ export function MessageChat({ chat, onSubmit, isTyping }: MessageChatProps) {
                 )}
                 <div ref={messagesEndRef} />
             </div>
-            <form onSubmit={handleSubmit} className="flex items-center border-t border-gray-200 px-4 py-2">
+
+            {/* Input Bar (Sticky Footer) */}
+            <form
+                onSubmit={handleSubmit}
+                className="sticky bottom-0 bg-white border-t border-gray-200 px-4 py-2 flex items-center"
+            >
                 <input
                     type="text"
                     value={message}
@@ -71,7 +76,7 @@ export function MessageChat({ chat, onSubmit, isTyping }: MessageChatProps) {
                     type="submit"
                     className="ml-2 p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                    <PaperAirplaneIcon className={"mx-auto h-6 w-6 text-white"} />
+                    <PaperAirplaneIcon className="h-6 w-6" />
                 </button>
             </form>
         </div>

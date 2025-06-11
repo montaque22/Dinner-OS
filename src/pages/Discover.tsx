@@ -21,6 +21,7 @@ function Discover() {
     const [savedName, setSavedName] = useState('')
     const [savedResponse, setSavedResponse] = useState('')
     const [didSucceed, setDidSucceed] = useState<boolean>(false)
+    const [isSaving, setIsSaving] = useState(false)
     const [url] = useState(getSavedURLFromLocalStorage())
     const Icon = didSucceed ? CheckCircleIcon : XCircleIcon
 
@@ -42,6 +43,7 @@ function Discover() {
     }
 
     const saveRecipe = () => {
+        setIsSaving(true)
         fetch(`${url}/savedinner`, {
             method: "POST",
             body: JSON.stringify(messages),
@@ -54,6 +56,7 @@ function Discover() {
                 setShowModal(true)
             })
             .catch((err: Error) => console.log(err))
+            .finally(() => setIsSaving(false))
     }
 
     useEffect(() => {
@@ -77,7 +80,8 @@ function Discover() {
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             {/* Header */}
-            <div className="relative flex items-center justify-center gap-4 mb-4 p-4 border-b shadow-sm bg-white">
+            <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-center gap-4 p-4 border-b shadow-sm bg-white">
+
                 <button
                     onClick={() => navigate('/')}
                     className="absolute left-4 text-blue-600 text-xl font-semibold"
@@ -94,7 +98,9 @@ function Discover() {
             </div>
 
             {/* Chat UI */}
-            <MessageChat chat={messages} isTyping={waiting} onSubmit={createMessage}/>
+            <div className="mt-[60px] h-[calc(100vh-60px)] overflow-y-hidden">
+                <MessageChat chat={messages} isTyping={waiting} onSubmit={createMessage}/>
+            </div>
 
             {/* Success Modal */}
             <Dialog open={showModal} onClose={() => setShowModal(false)} className="fixed inset-0 z-50">
@@ -117,6 +123,16 @@ function Discover() {
                                 View Recipe
                             </button>}
                         </div>
+                    </Dialog.Panel>
+                </div>
+            </Dialog>
+
+            {/* Loading Modal */}
+            <Dialog open={isSaving} onClose={() => {}} className="fixed inset-0 z-50">
+                <div className="flex items-center justify-center min-h-screen bg-black/40 p-4">
+                    <Dialog.Panel className="w-full max-w-sm rounded-lg bg-white p-6 text-center shadow-xl">
+                        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-purple-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Saving your recipe magic...</p>
                     </Dialog.Panel>
                 </div>
             </Dialog>
