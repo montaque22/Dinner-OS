@@ -1,25 +1,19 @@
 // pages/Discover.tsx
 import { useNavigate } from 'react-router-dom'
-import {
-    MainContainer,
-    MessageContainer,
-    MessageInput,
-    MessageList,
-    MinChatUiProvider,
-} from "@minchat/react-chat-ui";
-import { useState } from "react";
-import MessageType from "@minchat/react-chat-ui/dist/types/MessageType";
+import {useEffect, useState} from "react";
 import { Dialog } from "@headlessui/react";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import {getSavedURLFromLocalStorage} from "../utils";
+import {Message, MessageChat} from "../components/MessageChat";
 
+const LIMIT = 100;
 const generate = (text: string, name: string, id: string) => {
     return { text, user: { id, name } }
 }
 
 function Discover() {
     const navigate = useNavigate()
-    const [messages, setMessages] = useState<MessageType[]>([])
+    const [messages, setMessages] = useState<Message[]>([])
     const [id] = useState("my_id")
     const [name] = useState(localStorage.getItem("firstName") || "Family Member")
     const [waiting, setWaiting] = useState(false)
@@ -62,6 +56,24 @@ function Discover() {
             .catch((err: Error) => console.log(err))
     }
 
+    useEffect(() => {
+        if( messages.length === 0 ){
+            // We need to check if we should load chat from local storage
+            let savedMessageString = localStorage.getItem("chat") || "[]"
+            const savedMessage = JSON.parse(savedMessageString)
+
+            // To avoid an infinite useEffect loop we only update the messages if there was something in local storage
+            if(savedMessage.length > 0){
+                setMessages(savedMessage)
+            }
+        }else{
+            // Otherwise when there's a new message...
+            const storedMessages = messages.length > LIMIT ? messages.slice(-LIMIT) : messages
+            // Update the local storage with the last N messages
+            localStorage.setItem("chat", JSON.stringify(storedMessages))
+        }
+    }, [messages])
+
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             {/* Header */}
@@ -82,28 +94,7 @@ function Discover() {
             </div>
 
             {/* Chat UI */}
-            <div className="flex-1 flex justify-center items-center px-4 pb-4">
-                <div className="w-full  bg-message-grey shadow rounded-xl border overflow-hidden">
-                    <MinChatUiProvider theme="#6ea9d7">
-                        <MainContainer style={{ height: "80vh" }}>
-                            <MessageContainer>
-                                <MessageList
-                                    typingIndicatorContent={"Agent is typing..."}
-                                    showTypingIndicator={waiting}
-                                    currentUserId={id}
-                                    messages={messages}
-                                />
-                                <MessageInput
-                                    showSendButton={true}
-                                    showAttachButton={false}
-                                    placeholder="Ask for dinner ideas..."
-                                    onSendMessage={createMessage}
-                                />
-                            </MessageContainer>
-                        </MainContainer>
-                    </MinChatUiProvider>
-                </div>
-            </div>
+            <MessageChat chat={messages} isTyping={waiting} onSubmit={createMessage}/>
 
             {/* Success Modal */}
             <Dialog open={showModal} onClose={() => setShowModal(false)} className="fixed inset-0 z-50">
