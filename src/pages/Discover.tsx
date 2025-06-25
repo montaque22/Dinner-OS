@@ -22,6 +22,8 @@ function Discover() {
     const [savedResponse, setSavedResponse] = useState('')
     const [didSucceed, setDidSucceed] = useState<boolean>(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [shouldSelect, setShouldSelect] = useState<boolean>(false)
+    const [selectedRecipe, setSelectedRecipe] = useState<Message | undefined>()
     const [url] = useState(getSavedURLFromLocalStorage())
     const Icon = didSucceed ? CheckCircleIcon : XCircleIcon
 
@@ -42,11 +44,19 @@ function Discover() {
             .finally(() => setWaiting(false))
     }
 
+    const becomeSelectable = () => {
+        if(shouldSelect){
+            setSelectedRecipe(undefined)
+        }
+        setShouldSelect(!shouldSelect)
+    }
+
+
     const saveRecipe = () => {
         setIsSaving(true)
         fetch(`${url}/savedinner`, {
             method: "POST",
-            body: JSON.stringify(messages),
+            body: JSON.stringify([selectedRecipe]),
         })
             .then((res) => res.json())
             .then((data: { name?: string, success: boolean, response: string }) => {
@@ -56,7 +66,11 @@ function Discover() {
                 setShowModal(true)
             })
             .catch((err: Error) => console.log(err))
-            .finally(() => setIsSaving(false))
+            .finally(() => {
+                setIsSaving(false)
+                setShouldSelect(false)
+                setSelectedRecipe(undefined)
+            })
     }
 
     useEffect(() => {
@@ -80,7 +94,8 @@ function Discover() {
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             {/* Header */}
-            <div className="fixed top-0 left-0 right-0 z-10 flex items-center justify-center gap-4 p-4 border-b shadow-sm bg-white">
+            <div
+                className="fixed top-0 left-0 right-0 z-10 flex items-center justify-center gap-4 p-4 border-b shadow-sm bg-white">
 
                 <button
                     onClick={() => navigate('/')}
@@ -89,24 +104,46 @@ function Discover() {
                     ← Back
                 </button>
                 <h2 className="text-xl font-bold text-gray-800">Discover Recipes</h2>
-                <button
-                    className="absolute right-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
-                    onClick={saveRecipe}
-                >
-                    Save Recipe
-                </button>
+                <div className="absolute right-4 flex gap-2">
+                    {!shouldSelect && (
+                        <button
+                            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+                            onClick={becomeSelectable}
+                        >
+                            Select Recipe
+                        </button>
+                    )}
+                    {shouldSelect && (
+                        <>
+                            <button
+                                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
+                                onClick={becomeSelectable}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50"
+                                onClick={saveRecipe}
+                                disabled={!selectedRecipe || isSaving}
+                            >
+                                Save Recipe
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Chat UI */}
             <div className="mt-[60px] h-[calc(100vh-60px)] overflow-y-hidden">
-                <MessageChat chat={messages} isTyping={waiting} onSubmit={createMessage}/>
+                <MessageChat chat={messages} isTyping={waiting} onSubmit={createMessage} selectable={shouldSelect} onSelect={setSelectedRecipe}/>
             </div>
 
             {/* Success Modal */}
             <Dialog open={showModal} onClose={() => setShowModal(false)} className="fixed inset-0 z-50">
                 <div className="flex items-center justify-center min-h-screen bg-black/40 p-4">
                     <Dialog.Panel className="w-full max-w-md rounded-lg bg-white p-6 text-center shadow-xl">
-                        <Icon className={`mx-auto h-16 w-16 ${didSucceed ? "text-green-500 animate-bounce" : "text-red-500 animate-pulse"} `} />
+                        <Icon
+                            className={`mx-auto h-16 w-16 ${didSucceed ? "text-green-500 animate-bounce" : "text-red-500 animate-pulse"} `}/>
                         <Dialog.Title className="text-lg font-medium mt-4">Done!</Dialog.Title>
                         <p className="text-gray-600 mb-4">{savedResponse}</p>
                         <div className="flex justify-center gap-4">
