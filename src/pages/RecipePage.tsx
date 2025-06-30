@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { FiArrowLeft, FiAlertCircle } from 'react-icons/fi'
 import {getSavedURLFromLocalStorage} from "../utils";
+import PDFViewer from "../components/PDFViewer";
+import ErrorBoundary from '../components/ErrorBoundary';
 
 function RecipePage() {
     const navigate = useNavigate()
@@ -11,17 +13,28 @@ function RecipePage() {
     const [error, setError] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
     const [url] = useState(getSavedURLFromLocalStorage())
+    const [pdfUrl, setPdfUrl] = useState("");
 
     useEffect(() => {
         if (!name) return
 
         setLoading(true)
         fetch(`${url}/load_recipe?name=${encodeURIComponent(name)}`)
-            .then(res => res.json())
-            .then((response: {data: string}) => {
-                setContent(response.data)
-                setError('')
-            })
+            .then(res => res.blob())
+            .then((response) => {
+              if(name.includes(".pdf")){
+                  return URL.createObjectURL(response);
+              }else{
+                  return response.text()
+              }
+            }).then((text = "") => {
+            if(name.includes(".pdf")){
+                setPdfUrl(text);
+            }else{
+                setContent(text)
+            }
+            setError('')
+        })
             .catch(err => setError(err.toString()))
             .finally(() => setLoading(false))
     }, [name, url])
@@ -60,7 +73,10 @@ function RecipePage() {
 
             {!loading && !error && (
                 <div className="prose prose-purple max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-6 mt-4">
-                    <MarkdownPreview source={content}/>
+                    {!!content &&  <MarkdownPreview source={content}/>}
+                    <ErrorBoundary>
+                        {pdfUrl && <PDFViewer url={pdfUrl}/>}
+                    </ErrorBoundary>
                 </div>
             )}
         </div>

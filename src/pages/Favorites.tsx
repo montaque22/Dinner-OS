@@ -14,7 +14,7 @@ function Favorites() {
         fetch(`${url}/list_recipes`)
             .then(res => res.json())
             .then((response: { files: string[], message: string, errorCode: number }) => {
-                const { files, message, errorCode } = response
+                const { files = [], message, errorCode } = response
                 setFilenames([])
                 if (errorCode === 40400) {
                     setError("")
