@@ -77,6 +77,25 @@ Example:
 type LoadRecipeResponse = {data: string}
 ```
 
+#### POST /create_recipe
+Allows clients to upload a new recipe directly in Markdown format.
+**Input**
+```ts
+type CreateRecipeBody = {
+    title: string,   // file name of the recipe (ex: "chicken and rice.md")
+    content: string  // markdown-formatted recipe content
+}
+```
+
+#### DELETE /delete_recipe
+Deletes a previously saved recipe
+**Input**
+```ts
+type DeleteRecipeBody = {
+    title: string // name of the file to delete, including extension (e.g., "chicken and rice.md")
+}
+```
+
 
 ## Getting Started with Create React App
 
